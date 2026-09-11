@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'sportsdata' => [
+        'base_url' => env('SPORTSDATA_BASE_URL', 'https://fly.sportsdata.io/v3/nfl/'),
+        'key' => env('SPORTSDATA_KEY'),
+    ]
 ];

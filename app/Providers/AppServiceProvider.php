@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\CurrentWeek;
+use App\Services\Sportsdata;
 use Carbon\CarbonImmutable;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +27,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        // Guzzle Client
+        $this->app->bind(
+            Client::class, function () {
+                $config = [];
+                $config['base_uri'] = config('services.sportsdata.base_url');
+                return new Client($config);
+            }
+        );
+        //EGov AD Auth
+        $this->app->bind(
+            Sportsdata::class, function () {
+                return new Sportsdata(
+                    $this->app->make(Client::class),
+                    CurrentWeek::value('current_nfl_week'),
+                    config('services.sportsdata.key')
+                );
+            }
+        );
     }
 
     /**
