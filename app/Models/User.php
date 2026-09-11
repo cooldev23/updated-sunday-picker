@@ -26,6 +26,33 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passkeys\Passkey> $passkeys
+ * @property-read int|null $passkeys_count
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorConfirmedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorRecoveryCodes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $username
+ * @property string|null $timezone
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTimezone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUsername($value)
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
