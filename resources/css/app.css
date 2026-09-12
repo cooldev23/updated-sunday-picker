@@ -170,3 +170,18 @@
         @apply bg-background text-foreground;
     }
 }
+
+.welcome-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url("/resources/images/football-bg1.jpg");
+    background-position: bottom center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
