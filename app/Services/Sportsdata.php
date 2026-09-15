@@ -34,7 +34,7 @@ class Sportsdata
     public function getCurrentWeek(): JsonResponse|string
     {
         try {
-            $res = $this->client->request('GET', 'scores/json/CurrentWeek' . config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'scores/json/CurrentWeek' . $this->key);
             return json_decode($res->getBody());
         } catch (\Exception $e) {
             // ADD EMAIL TO ME IF THIS HAPPENS
@@ -51,7 +51,7 @@ class Sportsdata
     public function getCurrentSeason()
     {
         try {
-            $res = $this->client->request('GET', 'scores/json/CurrentSeason' . config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'scores/json/CurrentSeason' . $this->key);
             return json_decode($res->getBody());
         } catch (\Exception $e) {
             // ADD EMAIL TO ME IF THIS HAPPENS
@@ -69,7 +69,7 @@ class Sportsdata
     {
         $season = $this->getCurrentSeason();
         try {
-            $res = $this->client->request('GET', 'scores/json/Schedules/'. $season . config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'scores/json/Schedules/'. $season . $this->key);
             return json_decode($res->getBody());
         } catch (\Exception $e) {
             return 'An error has occurred: ' . $e->getMessage();
@@ -84,7 +84,7 @@ class Sportsdata
     public function getTeams(): JsonResponse|string
     {
         try {
-            $res = $this->client->request('GET', 'scores/json/Teams' . config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'scores/json/Teams' . $this->key);
             return json_decode($res->getBody());
         } catch (\Exception $e) {
             return 'An error has occurred: ' . $e->getMessage();
@@ -100,7 +100,7 @@ class Sportsdata
     public function getScoresByWeek(int $season): array|string
     {
         try {
-            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . $this->currentWeek . config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . $this->currentWeek . $this->key);
             
             return json_decode($res->getBody());
         } catch (\Exception $e) {
@@ -117,7 +117,7 @@ class Sportsdata
     public function getMondayNightScore(int $gameId): JsonResponse|string
     {
         try {
-            $res = $this->client->request('GET', 'stats/json/BoxScoreByScoreIDV3/' . $gameId .  config('services.sportsdata.key'));
+            $res = $this->client->request('GET', 'stats/json/BoxScoreByScoreIDV3/' . $gameId . $this->key);
             return json_decode($res->getBody());
         } catch (\Exception $e) {
             return 'An error has occurred: ' . $e->getMessage();
