@@ -4,7 +4,6 @@ import { login, register, dashboard } from '@/routes';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '@/components/ui/card/CardContent.vue';
 import CardHeader from '@/components/ui/card/CardHeader.vue';
-import ColorThemeSwitcher from '@/components/ui/color-theme-switcher/ColorThemeSwitcher.vue';
 
 defineProps({
     canLogin: {
@@ -23,7 +22,6 @@ defineProps({
         class="welcome-bg"
     >
         <div v-if="canLogin" class="sm:fixed sm:top-0 sm:right-0 md:relative bg-white p-3 text-right">
-            <ColorThemeSwitcher/>
             <Link
                 v-if="$page.props.auth.user"
                 :href="dashboard()"
