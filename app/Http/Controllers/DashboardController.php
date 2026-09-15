@@ -9,8 +9,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (Schedule::doesntExist()) {
-            return to_route('schedule.create');
+        if (Schedule::doesntExist() && auth()->user()->hasRole('Super Admin')) {
+            return to_route('admin.get-nfl-data');
         }
         
         $user = auth()->user();
