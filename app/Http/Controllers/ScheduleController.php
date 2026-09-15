@@ -28,7 +28,7 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        return inertia('Schedule/GetSchedule');
+        return inertia('schedule/GetSchedule');
     }
 
     /**

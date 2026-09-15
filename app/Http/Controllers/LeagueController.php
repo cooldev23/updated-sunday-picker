@@ -30,7 +30,7 @@ class LeagueController extends Controller
     {
         $types = LeagueType::all();
         
-        return inertia('League/CreateLeague', [
+        return inertia('league/CreateLeague', [
             'leagueTypes' => $types
         ]);
     }
@@ -113,7 +113,7 @@ class LeagueController extends Controller
         //             break;
         //     }
         // }
-        return inertia('League/ShowResults', [
+        return inertia('league/ShowResults', [
             'league' => $league,
             'user' => $user,
             'totalGamesWeek'=> $totalGamesWeek,
