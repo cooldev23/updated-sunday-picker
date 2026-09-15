@@ -1,0 +1,1 @@
+export { default as ColorThemeSwitcher } from "./ColorThemeSwitcher.vue"
