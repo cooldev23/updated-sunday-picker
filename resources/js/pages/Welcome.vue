@@ -1,8 +1,10 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { login, register, user } from '@/routes';
+import { login, register, dashboard } from '@/routes';
 import Card from '@/components/ui/card/Card.vue';
-import CardAction from '@/components/ui/card/CardAction.vue';
+import CardContent from '@/components/ui/card/CardContent.vue';
+import CardHeader from '@/components/ui/card/CardHeader.vue';
+import ColorThemeSwitcher from '@/components/ui/color-theme-switcher/ColorThemeSwitcher.vue';
 
 defineProps({
     canLogin: {
@@ -21,9 +23,10 @@ defineProps({
         class="welcome-bg"
     >
         <div v-if="canLogin" class="sm:fixed sm:top-0 sm:right-0 md:relative bg-white p-3 text-right">
+            <ColorThemeSwitcher/>
             <Link
                 v-if="$page.props.auth.user"
-                :href="user.dashboard()"
+                :href="dashboard()"
                 class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 focus:outline-2 focus:rounded-sm focus:outline-red-500"
                 >Dashboard</Link
             >
@@ -46,11 +49,13 @@ defineProps({
 
         <div class="max-w-7xl mx-auto p-6 lg:p-8">
             <div class="mt-8">
-                <Card>
-                    <CardAction>
-                        Stupid Mother Fuckers
-
-                    </CardAction>
+                <Card class="dark">
+                    <CardHeader class="pb-0 border-b">
+                        This is the Header!
+                    </CardHeader>
+                    <CardContent>
+                        Glad you found us! Here, you can join or create a pick-em league! Don't know what pick-em is? A pick-em league is where you pick the winner of every NFL game each week. Blah, blah, blah.
+                    </CardContent>
                     <!-- <template #header>
                         Testing
                     </template>

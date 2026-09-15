@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\DashboardController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
@@ -9,9 +11,9 @@ use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserPickController;
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
-});
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+// });
 
 require __DIR__.'/settings.php';
 
@@ -36,19 +38,28 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function() {
-    Route::get('dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-    Route::get('user/{user}/league/{league}/{week?}', [WeekController::class, 'edit'])->name('edit.picks');
-    Route::get('user/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.change-week');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
-    Route::get('create-schedule', [ScheduleController::class, 'create'])->name('schedule.create');
-    Route::post('create-schedule', [ScheduleController::class, 'store'])->name('schedule.store');
+Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(function() {
+    Route::get('/{user}/league/{league}/{week?}', [WeekController::class, 'edit'])->name('edit.picks');
+    Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.change-week');
+});
 
-    Route::patch('picks/{user}/{league}', [UserPickController::class, 'setPicks'])->name('picks.update');
+Route::middleware(['auth', 'verified'])->prefix('schedule')->name('schedule.')->group(function() {
+    Route::get('/create', [ScheduleController::class, 'create'])->name('create');
+    Route::post('/store', [ScheduleController::class, 'store'])->name('store');
+});
 
-    Route::get('league/create', [LeagueController::class, 'create'])->name('league.create');
-    Route::post('league/create', [LeagueController::class, 'store'])->name('league.store');
-    Route::get('league/{league}/show-results', [LeagueController::class, 'show'])->name('league.show');
-    Route::get('league/{league}/weekly-picks', [LeagueController::class, 'weeklyPicks'])->name('league.weeklyPicks');
+Route::middleware(['auth', 'verified'])->prefix('picks')->name('picks.')->group(function() {
+    Route::patch('/{user}/{league}', [UserPickController::class, 'setPicks'])->name('update');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('league')->name('league.')->group(function() {
+    Route::get('/create', [LeagueController::class, 'create'])->name('create');
+    Route::post('/create', [LeagueController::class, 'store'])->name('store');
+    Route::get('/{league}/show-results', [LeagueController::class, 'show'])->name('show');
+    Route::get('/{league}/weekly-picks', [LeagueController::class, 'weeklyPicks'])->name('weeklyPicks');
 });
 
 Route::get('get-weekly-scores', function() {
