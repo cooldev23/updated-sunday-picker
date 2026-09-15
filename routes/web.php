@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\NFLDataController;
 use App\Http\Controllers\DashboardController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
@@ -32,11 +33,6 @@ Route::middleware(['auth', 'verified'])->group(function() {
         Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.change-week');
     });
 
-    Route::prefix('schedule')->name('schedule.')->group(function() {
-        Route::get('/create', [ScheduleController::class, 'create'])->name('create');
-        Route::post('/store', [ScheduleController::class, 'store'])->name('store');
-    });
-
     Route::prefix('picks')->name('picks.')->group(function() {
         Route::patch('/{user}/{league}', [UserPickController::class, 'setPicks'])->name('update');
     });
@@ -46,6 +42,14 @@ Route::middleware(['auth', 'verified'])->group(function() {
         Route::post('/create', [LeagueController::class, 'store'])->name('store');
         Route::get('/{league}/show-results', [LeagueController::class, 'show'])->name('show');
         Route::get('/{league}/weekly-picks', [LeagueController::class, 'weeklyPicks'])->name('weeklyPicks');
+    });
+
+    Route::middleware(['role:Super Admin'])->prefix('admin')->name('admin.')->group(function() {
+        Route::get('/get-nfl-data', [NFLDataController::class, 'index'])->name('get-nfl-data');
+        // Route::prefix('nfl-data')->name('nfl-data.')->group(function() {
+        //     Route::get('/create', [ScheduleController::class, 'create'])->name('create');
+        //     Route::post('/store', [ScheduleController::class, 'store'])->name('store');
+        // });
     });
 });
 
