@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function index()
     {
         if (Schedule::doesntExist() && auth()->user()->hasRole('Super Admin')) {
-            return to_route('admin.get-nfl-data');
+            return to_route('admin.getNflData');
         }
         
         $user = auth()->user();
