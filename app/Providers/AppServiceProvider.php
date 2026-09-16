@@ -41,7 +41,6 @@ class AppServiceProvider extends ServiceProvider
             Sportsdata::class, function () {
                 return new Sportsdata(
                     $this->app->make(Client::class),
-                    CurrentWeek::value('current_nfl_week'),
                     config('services.sportsdata.key')
                 );
             }

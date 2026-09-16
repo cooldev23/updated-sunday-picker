@@ -14,13 +14,11 @@ class Sportsdata
      * Class constructor, takes in Guzzle client
      *
      * @param Client $client
-     * @param integer $currentWeek
      * @param string $key
      *
      */
     public function __construct(
         private Client $client,
-        private int $currentWeek,
         private string $key,
     ) {
 
@@ -79,9 +77,9 @@ class Sportsdata
     /**
      * Get active NFL teams information.
      *
-     * @return JsonResponse|string
+     * @return array|string
      */
-    public function getTeams(): JsonResponse|string
+    public function getTeams(): array|string
     {
         try {
             $res = $this->client->request('GET', 'scores/json/Teams' . $this->key);
@@ -99,8 +97,9 @@ class Sportsdata
      */
     public function getScoresByWeek(int $season): array|string
     {
+        $currentWeek = $this->getCurrentWeek();
         try {
-            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . $this->currentWeek . $this->key);
+            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . $currentWeek . $this->key);
             
             return json_decode($res->getBody());
         } catch (\Exception $e) {
