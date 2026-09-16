@@ -1,25 +1,56 @@
 <script setup>
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import { ref } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
+import Card from '@/components/ui/card/Card.vue';
+import { UserGroupIcon, CalendarDaysIcon } from '@heroicons/vue/24/solid';
 
 const message = ref('');
+const currentYear = new Date().getFullYear();
 
 function submit() {
-    axios.post('create-schedule')
+  axios.post('create-schedule')
     .then(response => {
-        message.value = response.data.success
+      message.value = response.data.success
     })
 }
 </script>
 
 <template>
-    <Head title="Create Schedule"></Head>
-    <AuthLayout>
-        <div class="text-center">
-            <button type="button" class="mt-3 px-2.5 py-1.5 rounded-md bg-blue-500 border border-blue-500 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" @click.prevent="submit">Get Schedule From Here</button>
-        </div>
-        <p v-if="message">{{ message }}</p>
-    </AuthLayout>
+
+  <Head title="Get Data"></Head>
+
+  <div class="p-3">
+    <h1 class="mb-2 pb-1 text-xl border-b">Get NFL Data</h1>
+    <div class="grid grid-cols-4 gap-x-4">
+      <Link :href="route('admin.nflSchedule.store')">
+        <Card class="p-3 flex flex-col items-center hover:shadow-sm">
+          <CardHeader>
+            <CardTitle>Get Schedule</CardTitle>
+          </CardHeader>
+          <CalendarDaysIcon class="w-12 h-12"/>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Get {{ currentYear }} NFL games
+            </p>
+          </CardContent>
+        </Card>
+      </Link>
+      <Link :href="route('admin.nflTeams.store')">
+        <Card class="p-3 flex flex-col items-center hover:shadow-sm">
+          <CardHeader>
+            <CardTitle>Get Teams</CardTitle>
+          </CardHeader>
+          <UserGroupIcon class="w-12 h-12"/>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Get NFL teams
+            </p>
+          </CardContent>
+        </Card>
+      </Link>
+      <!-- TODO: Set Weeks in current weeks table -->
+      <!-- Anything else? -->
+    </div>
+  </div>
 </template>
