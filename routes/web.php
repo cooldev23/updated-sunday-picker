@@ -1,15 +1,16 @@
 <?php
 
 use App\Http\Controllers\Admin\NFLDataController;
+use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\TeamsController;
 use App\Http\Controllers\DashboardController;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LeagueController;
+use App\Http\Controllers\UserPickController;
+use App\Http\Controllers\WeekController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\WeekController;
-use App\Http\Controllers\LeagueController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\UserPickController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // auth routes
 require __DIR__.'/settings.php';
@@ -30,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
 
     Route::prefix('user')->name('user.')->group(function() {
         Route::get('/{user}/league/{league}/{week?}', [WeekController::class, 'edit'])->name('edit.picks');
-        Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.change-week');
+        Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.changeWeek');
     });
 
     Route::prefix('picks')->name('picks.')->group(function() {
@@ -45,11 +46,9 @@ Route::middleware(['auth', 'verified'])->group(function() {
     });
 
     Route::middleware(['role:Super Admin'])->prefix('admin')->name('admin.')->group(function() {
-        Route::get('/get-nfl-data', [NFLDataController::class, 'index'])->name('get-nfl-data');
-        // Route::prefix('nfl-data')->name('nfl-data.')->group(function() {
-        //     Route::get('/create', [ScheduleController::class, 'create'])->name('create');
-        //     Route::post('/store', [ScheduleController::class, 'store'])->name('store');
-        // });
+        Route::get('/get-nfl-data', [NFLDataController::class, 'index'])->name('getNflData');
+        Route::get('/nfl-schedule/store', ScheduleController::class)->name('nflSchedule.store');
+        Route::get('/nfl-teams/store', TeamsController::class)->name('nflTeams.store');
     });
 });
 
