@@ -7,6 +7,7 @@ use App\Models\Schedule;
 use App\Services\Sportsdata;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ScheduleController extends Controller
 {
@@ -15,7 +16,6 @@ class ScheduleController extends Controller
      */
     public function __invoke(Request $request, Sportsdata $sportsdata)
     {
-        dd('stop here');
         $allGames = $sportsdata->getSchedule();
 
         foreach ($allGames as $g) {
@@ -54,6 +54,8 @@ class ScheduleController extends Controller
             $game->save();
         }
 
-        return inertia('admin/nflData/GetNFLData');
+        Inertia::flash('success', 'Schedule saved successfully');
+
+        return to_route('admin.getNflData');
     }
 }
