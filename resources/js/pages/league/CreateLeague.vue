@@ -1,140 +1,129 @@
 <script setup>
-import AuthLayout from "@/layouts/AuthLayout.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import TextInput from "@/Components/TextInput.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref } from 'vue';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog"
+import { Spinner } from '@/components/ui/spinner';
+import { store } from '@/routes/league';
+import { dashboard } from '@/routes';
+import SelectLabel from '@/components/ui/select/SelectLabel.vue';
 
-// props
+defineOptions({
+	layout: {
+		breadcrumbs: [
+			{
+				title: 'Dashboard',
+				href: dashboard(),
+			},
+			{
+				title: 'Create League',
+				href: null,
+			},
+		],
+	},
+});
+
 const props = defineProps({
-    leagueTypes: Object,
+	leagueTypes: Object,
 });
 
-// form
-const form = useForm({
-    leagueName: "",
-    leagueMotto: "",
-    leagueTypeId: "",
-    newMembers: ""
-});
-
-const submit = () => {
-    form.post(route("league.store"));
-};
+const isSelectOpen = ref(false);
 </script>
 
 <template>
-    <Head title="Create League"></Head>
-    <AuthLayout>
-        <div class="py-6">
-            <h1 class="text-3xl text-center">Create Your League!</h1>
-            <div
-                class="p-3 max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-2 gap-2"
-            >
-                <div
-                    class="w-full mx-auto sm:max-w-lg mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg"
-                >
-                    <form @submit.prevent="submit">
-                        <div
-                            class="mx-auto pb-4 pt-3 sm:px-6 lg:px-8 max-w-7xl"
-                        >
-                            <fieldset>
-                                <legend class="mb-2 border-b border-gray-300 text-xl w-full">League Details</legend>
-                                <div class="mb-2">
-                                    <InputLabel for="leagueName" value="League Name" />
-                                    <TextInput
-                                        id="leagueName"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model.trim="form.leagueName"
-                                        required
-                                        autofocus
-                                        autocomplete="leagueName"
-                                    />
-                                    <InputError
-                                        class="mt-2"
-                                        :message="form.errors.leagueName"
-                                    />
-                                </div>
-                                <div class="mb-2">
-                                    <InputLabel
-                                        for="leagueMotto"
-                                        value="League Motto"
-                                    />
-                                    <TextInput
-                                        id="leagueMotto"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model.trim="form.leagueMotto"
-                                        required
-                                        autofocus
-                                        autocomplete="leagueMotto"
-                                    />
-                                    <InputError
-                                        class="mt-2"
-                                        :message="form.errors.leagueMotto"
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel
-                                        for="leagueType"
-                                        value="League Type"
-                                    />
-                                    <select
-                                        id="leagueType"
-                                        class="mt-2 block w-full rounded-md border-0 py-2.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        v-model="form.leagueTypeId"
-                                    >
-                                        <option disabled value="">Select League Type...</option>
-                                        <option
-                                            v-for="type in leagueTypes"
-                                            :key="type.id"
-                                            :value="type.id"
-                                        >
-                                            {{ type.name }}
-                                        </option>
-                                    </select>
-                                    <InputError
-                                        class="mt-2"
-                                        :message="form.errors.leagueTypeId"
-                                    />
-                                </div>
-                            </fieldset>
 
-                            <fieldset class="mt-3">
-                                <legend class="mb-2 border-b border-gray-300 w-full text-xl">Invite League Members</legend>
-                                <div>
-                                    <InputLabel
-                                        for="addMembers"
-                                        value="Add members (can be done later)"
-                                    />
-                                    <textarea rows="6" id="addMembers" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Enter email addresses separated by a comma" v-model.trim="form.newMembers"></textarea>
-                                    <InputError
-                                        class="mt-2"
-                                        :message="form.errors.newMembers"
-                                    />
-                                </div>
-                            </fieldset>
-                            <hr class="h-px my-3 bg-gray-300 border-0">
-                            <PrimaryButton> Create League </PrimaryButton>
-                        </div>
-                    </form>
-                </div>
-                <div
-                    class="mx-auto w-full sm:max-w-lg mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg self-start"
-                >
-                    <h4 class="text-xl">League Types</h4>
-                    <div v-for="type in leagueTypes" :key="type.id">
-                        <dl class="mb-2">
-                            <dt>
-                                <strong>{{ type.name }}</strong>
-                            </dt>
-                            <dd>{{ type.description }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </AuthLayout>
+	<Head title="Create League"></Head>
+
+	<div class="flex min-h-svh flex-col items-center gap-6 p-6 md:p-10">
+		<Form v-bind="store.form()" v-slot="{ errors, processing }"
+			class="p-4 w-full max-w-md border flex flex-col gap-6 rounded-md shadow-sm shadow-slate-800">
+			<div class="grid gap-6">
+				<div class="grid gap-2">
+					<Label for="name">League Name</Label>
+					<Input id="name" type="text" name="name" required autofocus :tabindex="1" autocomplete="name"
+						placeholder="League name" />
+					<InputError :message="errors.name" />
+				</div>
+				<div class="grid gap-2">
+					<Label for="motto">Motto</Label>
+					<Input id="motto" type="text" name="motto" required autofocus :tabindex="1" autocomplete="motto"
+						placeholder="League motto (optional)" />
+					<InputError :message="errors.motto" />
+				</div>
+				<div class="grid gap-2">
+					<Label class="mb-2" for="leagueType" @click.prevent="isSelectOpen = true">League Type</Label>
+					<Select items={leagueTypes} name="leagueType" v-model:open="isSelectOpen">
+						<SelectTrigger class="w-full" id="leagueType">
+							<SelectValue placeholder="Choose League Type" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectLabel>League Types</SelectLabel>
+								<SelectItem v-for="leagueType in leagueTypes" :key="leagueType.id" :value="leagueType.id">
+									{{ leagueType.name }}
+								</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+					<div class="text-start">
+						<Dialog>
+							<DialogTrigger class="p-1 text-xs cursor border rounded-md bg-gray-800 cursor-pointer">League Type Descriptions</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>League Type Descriptions</DialogTitle>
+									<DialogDescription>
+										<div v-for="type in leagueTypes" :key="type.id">
+											<dl class="mb-2">
+												<dt>
+													<strong>{{ type.name }}</strong>
+												</dt>
+												<dd>{{ type.description }}</dd>
+											</dl>
+										</div>
+									</DialogDescription>
+								</DialogHeader>
+							</DialogContent>
+						</Dialog>
+					</div>
+				</div>
+				<div>
+					<Label class="mb-2" for="addMembers">Add Members <span class="text-xs">(can be done later)</span></Label>
+					<textarea rows="6" id="addMembers" name="addMembers"
+						class="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-400 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+						placeholder="Enter email addresses separated by a comma"></textarea>
+					<InputError :message="errors.addMembers" />
+				</div>
+				<hr class="mb-1">
+				<div class="grid grid-cols-2 gap-x-2">
+					<Button type="submit" class="w-full cursor-pointer" :tabindex="4" :disabled="processing" data-test="login-button">
+						<Spinner v-if="processing" />
+						Create League
+					</Button>
+					<Link :href="dashboard()">
+						<Button type="button" class="w-full cursor-pointer" :tabindex="4">
+							Cancel
+						</Button>
+					</Link>
+				</div>
+			</div>
+		</Form>
+	</div>
 </template>
