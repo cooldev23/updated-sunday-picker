@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\NFLDataController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\TeamsController;
@@ -46,14 +47,18 @@ Route::middleware(['auth', 'verified'])->group(function() {
     });
 
     Route::middleware(['role:Super Admin'])->prefix('admin')->name('admin.')->group(function() {
+        Route::get('/dashboard', [AdminController::class, 'index'])->name('adminDashboard');
         Route::get('/get-nfl-data', [NFLDataController::class, 'index'])->name('getNflData');
         Route::get('/nfl-schedule/store', ScheduleController::class)->name('nflSchedule.store');
-        Route::get('/nfl-teams/store', TeamsController::class)->name('nflTeams.store');
+        Route::get('/nfl-teams/store', TeamsController::class)->name('nflTeams.storeTeams');
     });
 });
 
 // command testing
 Route::get('get-weekly-scores', function() {
     Artisan::call('scores:get-weekly-scores');
+});
+Route::get('get-current-week', function() {
+    Artisan::call('schedule:get-current-week');
 });
 
