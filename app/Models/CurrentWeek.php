@@ -33,7 +33,8 @@ use Illuminate\Database\Eloquent\Model;
 class CurrentWeek extends Model
 {
     protected $fillable = [
-        'current_nfl_week'
+        'current_nfl_week',
+        'current_nfl_season'
     ];
 
     protected $table = 'current_week';
