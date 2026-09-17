@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -86,5 +89,163 @@ class User extends Authenticatable implements PasskeyUser
         return Attribute::make(
             set: fn (string $value) => Str::lower($value),
         );
+    }
+
+    /**
+     * A user can belong to many leagues.
+     *
+     * @return BelongsToMany
+     */
+    public function leagues(): BelongsToMany
+    {
+        return $this->belongsToMany(League::class, 'league_user', 'user_id', 'league_id')->withPivot('survivor_eliminated');
+    }
+
+    /**
+     * A user will have many picks.
+     *
+     * @return HasMany
+     */
+    public function picks(): HasMany
+    {
+        return $this->hasMany(Pick::class, 'user_id_FK');
+    }
+
+    /**
+     * A user will have many stats.
+     *
+     * @return HasMany
+     */
+    public function stats(): HasMany
+    {
+        return $this->hasMany(UserStat::class, 'user_id');
+    }
+
+    /**
+     * A user will have one latest stat.
+     *
+     * @return HasOne
+     */
+    public function statsLatest(): HasOne
+    {
+        return $this->hasOne(UserStat::class)->latestOfMany();
+    }
+
+    /**
+     * Summary of setCorrectPicksAndPercentages
+     * @param int $cw
+     * @return void
+     */
+    public function setCorrectPicksAndPercentages(int $cw): void
+    {
+        // TODO run through week 3
+        // TODO add scopes
+        $weekWinners = Score::where('nfl_week', $cw)->get(['winner', 'game_id']);
+        $formattedWinners = $this->formatWinners($weekWinners);
+        $weekPicks = $this->picks()->where('nfl_week', $cw)->get();
+        foreach($this->leagues as $league) {
+            foreach ($weekPicks as $pick) {
+                if ($league->league_type_id === 2) {
+                    if ($formattedWinners[$pick->game_id] !== $pick->winner) {
+                        $this->leagues()->updateExistingPivot($league->id, ['survivor_eliminated' => 1]);
+                    }
+                }
+                if ($formattedWinners[$pick->game_id] === $pick->winner || $formattedWinners[$pick->game_id] === 'tie') {
+                    $pick->correct = true;
+                    $pick->save();
+                }
+            }
+
+            $numCorrect = Pick::where([['user_id_FK', $this->id], ['league_id_FK', $league->id], ['nfl_week', $cw], ['correct', 1]])->count();
+            
+            $numGamesThisWeek = Schedule::where([['nfl_week', $cw], ['away_team', '!=', 'BYE']])->count();
+
+            $stat = UserStat::updateOrCreate(
+                [
+                    'user_id' => $this->id,
+                    'league_id' => $league->id
+                ],
+                [
+                    'week' => $cw,
+                    'total_correct_wk' => $numCorrect,
+                    'total_games_wk' => $numGamesThisWeek
+                ]
+            );
+
+            $pastWeeks = [];
+            for ($i=$cw; $i > 0; $i--) { 
+                array_push($pastWeeks, $i);
+            }
+
+            $stat->total_correct_yr = $this->picks()->where([['league_id_FK', $league->id], ['correct', 1]])->count();
+            $stat->total_games_yr = Schedule::where([['away_team', '!=', 'BYE']])->whereIn('nfl_week', $pastWeeks)->count();
+            $stat->save();
+        }
+    }
+
+    /**
+     * Create array with game id as keys
+     *
+     * @param object $winners
+     * @return array
+     */
+    private function formatWinners(object $winners): array
+    {
+        $tempArr = [];
+        foreach ($winners as $winner) {
+            $tempArr[$winner->game_id] = $winner->winner;
+        }
+        return $tempArr;
+    }
+
+    /**
+     * Return average weekly correct if stats exist
+     *
+     * @return float|string
+     */
+    public function getAvgWeeklyCorrect()
+    {
+        $totalCorrect = 0;
+        if ($this->statsLatest) {
+            foreach ($this->stats as $stat) {
+                $weekCorrect = ($stat->total_correct_wk/$stat->total_games_wk)  * 100;
+                $totalCorrect += $weekCorrect;
+            }
+            $avgPercentCorrectPerWeek = $totalCorrect / $this->stats()->count();
+
+            return $avgPercentCorrectPerWeek;
+        }
+        return 'No stats yet';
+    }
+
+    public function getYearPercentCorrect()
+    {
+        if ($this->statsLatest) {
+            return ($this->picks()->where('correct', 1)->count()/$this->statsLatest->total_games_yr) * 100;
+        }
+
+        return 'No stats yet';
+    }
+
+    public function getWeeklyCorrect()
+    {
+        return $this->statsLatest->total_correct_wk ?? 'No stats yet';
+    }
+
+    public function getWeeklyAverage(int $totalGamesThisWeek)
+    {
+        if ($this->statsLatest) {
+            return ($this->statsLatest->total_correct_wk / $totalGamesThisWeek) * 100;
+        }
+        return 'No stats yet';
+    }
+
+    public function getWeekWeightTotal(int $cw, League $league)
+    {
+        return $this->picks()->where([
+            ['nfl_week', $cw],
+            ['league_id_FK', $league->id],
+            ['correct', 1]
+        ])->sum('weighted_order');
     }
 }
