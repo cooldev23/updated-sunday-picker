@@ -16,8 +16,7 @@
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
-        "spatie/laravel-permission": "*",
-        "tightenco/ziggy": "*"
+        "spatie/laravel-permission": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "*",

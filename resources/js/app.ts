@@ -6,6 +6,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { ZiggyVue } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -23,19 +24,15 @@ void createInertiaApp({
                 return AppLayout;
         }
     },
-    setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(ZiggyVue) // 2. Tell Vue to use it globally
-            .mount(el);
-    },
     progress: {
         color: '#4B5563',
     },
 });
 
+if (!import.meta.env.SSR) {
 // This will set light / dark mode on page load...
 initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+}
