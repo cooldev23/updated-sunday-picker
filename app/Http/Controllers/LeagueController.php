@@ -20,7 +20,7 @@ class LeagueController extends Controller
      */
     public function index()
     {
-        //
+        // maybe show a list here with names and number of members?
     }
 
     /**
@@ -66,7 +66,7 @@ class LeagueController extends Controller
                     'message' => 'Something went wrong.  The league was created, but your invites failed. Please, try again later'
                 ]);
 
-                return to_route('user.dashboard');
+                return to_route('dashboard');
             }
         }
 
@@ -75,7 +75,7 @@ class LeagueController extends Controller
             'message' => 'League ' . $league->name . ' successfully created' . $request->addMembers ? ' and invitations sent' : ''
         ]);
         
-        return to_route('user.dashboard');
+        return to_route('dashboard');
     }
 
     /**
