@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\Otp;
-use App\Models\User;
-use App\Models\Score;
-use App\Models\League;
-use App\Models\Schedule;
-use App\Models\LeagueType;
 use App\Models\CurrentWeek;
-use Illuminate\Http\Request;
+use App\Models\League;
+use App\Models\LeagueInvited;
+use App\Models\LeagueType;
+use App\Models\Otp;
+use App\Models\Schedule;
+use App\Models\Score;
+use App\Models\User;
+use App\Notifications\LeagueInvite;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use Inertia\Inertia;
 
 class LeagueController extends Controller
 {
@@ -29,7 +33,7 @@ class LeagueController extends Controller
     public function create()
     {
         $types = LeagueType::all();
-        
+
         return inertia('league/CreateLeague', [
             'leagueTypes' => $types
         ]);
@@ -48,7 +52,8 @@ class LeagueController extends Controller
             'leagueMotto' => 'nullable',
             'leagueTypeId' => 'required|numeric'
         ]);
-
+        $responseMessage = '';
+        
         $league = League::create([
             'name' => $attributes['leagueName'],
             'motto' => $attributes['leagueMotto'],
@@ -56,24 +61,27 @@ class LeagueController extends Controller
             'league_creator_id' => auth()->id()
         ]);
 
-        $user = User::with('leagues')->where('id', auth()->id())->first();
+        $user = auth()->user();
+        $user->load('leagues');
         $league->users()->attach(auth()->id());
 
         if ($request->addMembers) {
-            if (!Otp::generate($request->addMembers, $league, $user)) {
-                request()->session()->flash('alert', [
-                    'type' => 'danger',
-                    'message' => 'Something went wrong.  The league was created, but your invites failed. Please, try again later'
+            $inviteeEmails = explode(', ', $request->addMembers);
+            foreach ($inviteeEmails as $email) {
+                // Generate OTP
+                $otp = Otp::generate($email, $league);
+                // send on-demand notification to email address with link containing league_id and code
+                Notification::route('mail', $email)->notify(new LeagueInvite($league, $otp->code, $email));
+                
+                LeagueInvited::create([
+                    'league_id' => $league->id,
+                    'invited' => $email
                 ]);
-
-                return to_route('dashboard');
             }
         }
 
-        request()->session()->flash('alert', [
-            'type' => 'success',
-            'message' => 'League ' . $league->name . ' successfully created' . $request->addMembers ? ' and invitations sent' : ''
-        ]);
+        $responseMessage = 'League ' . $league->name . ' successfully created' . $request->addMembers ? ' and invitations sent' : '';
+        Inertia::flash('success', $responseMessage);
         
         return to_route('dashboard');
     }
@@ -123,6 +131,7 @@ class LeagueController extends Controller
         ]);
     }
 
+    // TODO: make invokable controller for this route
     /**
      * Display the weekly picks for all league users.
      * 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\TeamsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeagueController;
+use App\Http\Controllers\OtpController;
 use App\Http\Controllers\UserPickController;
 use App\Http\Controllers\WeekController;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,12 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 })->name('home');
+
+// registration
+Route::prefix('otp')->name('otp.')->group(function() {
+    Route::get('/register/{league}/{code}/{email}', [OtpController::class , 'register'])->name('register');
+    Route::post('/register/{league}/{code}/{email}', [OtpController::class , 'store'])->name('store');
+});
 
 // after login
 Route::middleware(['auth', 'verified'])->group(function() {
