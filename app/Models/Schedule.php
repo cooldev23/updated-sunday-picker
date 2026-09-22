@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Team;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Schedule byes()
@@ -61,6 +63,26 @@ class Schedule extends Model
     protected $casts = [
         'game_time' => 'datetime'
     ];
+
+    /**
+     * Each game has an away team.
+     *
+     * @return BelongsTo
+     */
+    public function awayTeam() : BelongsTo
+    {
+        return $this->belongsTo(Team::class, 'global_away_team_id', 'global_team_id');
+    }
+
+    /**
+     * Each game has a home team.
+     *
+     * @return BelongsTo
+     */
+    public function homeTeam() : BelongsTo
+    {
+        return $this->belongsTo(Team::class, 'global_home_team_id', 'global_team_id');
+    }
 
     /**
      * Local query scope for no byes.
