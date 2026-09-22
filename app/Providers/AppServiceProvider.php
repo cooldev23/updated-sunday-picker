@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
             // Fetch from cache, or query DB
             return Cache::remember('currentWeek', 3600, function () {
                 $currentWeek = CurrentWeek::find(1);
-                return $currentWeek?->current_nfl_season;
+                return $currentWeek?->current_nfl_week;
             });
         });
     }
