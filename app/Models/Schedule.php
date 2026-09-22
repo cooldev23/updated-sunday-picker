@@ -95,7 +95,7 @@ class Schedule extends Model
     public function scopeLastGameOfWeek(Builder $query, ?int $week)
     {
         if (!$week) {
-            $week = CurrentWeek::value('current_nfl_week');
+            $week = app('currentWeek');
         }
         
         return $query->where([['nfl_week', $week], ['away_team', '!=', 'BYE']])->latest('game_time')->first();
