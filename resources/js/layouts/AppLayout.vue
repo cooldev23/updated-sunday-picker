@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import type { BreadcrumbItem } from '@/types';
-import { router, usePage } from "@inertiajs/vue3";
+import { usePage } from "@inertiajs/vue3";
 
 const page = usePage();
 
