@@ -23,6 +23,11 @@ const { breadcrumbs = [] } = defineProps<{
                 {{ page.flash.success }}
             </Alert>
         </div>
+        <div v-if="page.flash?.message">
+            <Alert variant="default">
+                {{ page.flash.message }}
+            </Alert>
+        </div>
         <slot />
     </AppLayout>
 </template>
