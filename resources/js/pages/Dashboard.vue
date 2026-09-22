@@ -1,6 +1,6 @@
 <script setup>
 import { dashboard } from '@/routes';
-import { picks } from '@/routes/week/edit';
+import { create as createPicks, edit as editPicks } from '@/routes/picks';
 import { show, create } from '@/routes/league';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import {
@@ -48,13 +48,16 @@ const page = usePage();
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Week {{ page.props.currentWeek }} Picks</p>
+            <p>Week {{ page.props.currentWeek }} {{ league.picks.length ? 'Picks' : '' }}</p>
             <div class="mb-3 flex justify-around flex-wrap">
                 <span v-for="pick in league.picks" :key="pick.game_id" class="mx-2 mb-1 shadow-sm inline-flex justify-center items-center rounded-full bg-gray-50 px-2 py-1 text-lg w-16 font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{ pick.winner }}</span>
             </div>
           </CardContent>
-          <CardFooter>
-            <Link :href="picks({user: user, league: league})" class="rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-md hover:bg-blue-500 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">{{ league.picks.length ? 'Edit' : 'Make' }} Picks</Link>
+          <CardFooter v-if="!league.picks.length">
+            <Link :href="createPicks({league: league, week: page.props.currentWeek})" class="rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-md hover:bg-blue-500 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Make Picks</Link>
+          </CardFooter>
+          <CardFooter v-else>
+            <Link :href="editPicks({league: league, week: page.props.currentWeek})" class="rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-md hover:bg-blue-500 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Edit Picks</Link>
           </CardFooter>
         </Card>
       </div>

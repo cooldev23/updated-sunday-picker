@@ -1,8 +1,35 @@
 <script setup>
-import GameContainer from './GameContainer.vue';
+import GameContainer from '@/components/GameContainer.vue';
 import { useSelectedTeamsStore } from '@/Stores/SelectedTeamsStore.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, computed, onBeforeMount, reactive } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { CircleAlert } from '@lucide/vue';
+import { ref, computed, onBeforeMount } from 'vue';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+    SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { create, store, update } from '@/routes/picks';
+import { dashboard } from '@/routes';
+
+defineOptions({
+  layout: {
+    breadcrumbs: [
+      {
+        title: 'Dashboard',
+        href: dashboard(),
+      },
+      {
+        title: 'Make/Edit Picks',
+        href: null,
+      },
+    ],
+  },
+});
 
 // stores
 const selectedTeamsStore = useSelectedTeamsStore();
@@ -10,26 +37,21 @@ const selectedTeamsStore = useSelectedTeamsStore();
 // props
 const props = defineProps({
     thisWeek: Array,
-    user: Object,
     currentWeek: Number,
     league: Object,
     lastGameOfWeek: Object,
     byes: Array,
     userPicks: {
         type: Array,
-        default() {
-            return []
-        }
-    },
-    timezone: String
+        default: []
+    }
 });
 
+// helpers
+const page = usePage();
+
 // data
-const allGames = ref(props.thisWeek),
-    currWeek = ref(props.currentWeek),
-    weekByes = ref(props.byes),
-    tiebreaker = ref(0),
-    errorMessage = ref('Some games not picked for '),
+const tiebreaker = ref(0),
     selectedWeek = ref(props.currentWeek);
 
 // computed
@@ -54,6 +76,14 @@ const allWeeks = computed(() => {
     return weeks;
 });
 
+const userTimezone = computed(() => {
+    return page.props.auth.user.timezone;
+})
+
+const isEdit = computed(() => {
+    return props.userPicks.length > 0;    
+})
+
 // named functions
 function getSelectedTeam(game) {
     let selectedTeams = props.userPicks;
@@ -74,11 +104,17 @@ function resetSurvivorPick(e) {
 }
 
 function submitPicks() {
-    router.patch('/picks/' + props.user.id + '/' + props.league.id, { data: selectedTeamsStore.userSelectedTeams, user: props.user, league: props.league, selectedWeek: currWeek.value, tiebreaker: Number(tiebreaker.value) });
+    console.log(isEdit);
+    
+    if (isEdit.value) {
+        router.patch(update({ league: props.league, week: selectedWeek.value, data: selectedTeamsStore.userSelectedTeams,  tiebreaker: Number(tiebreaker.value) }));
+    } else {
+        router.post(store({league: props.league, week: selectedWeek.value, data: selectedTeamsStore.userSelectedTeams, tiebreaker: Number(tiebreaker.value) }));
+    }
 }
 
 function changeWeek() {
-    router.get('/user/' + props.user.id + '/league/' + props.league.id + '/' + selectedWeek.value);
+    router.get(create({league: props.league, week: selectedWeek.value}));
 }
 
 function getTiebreakerValue() {
@@ -100,36 +136,42 @@ onBeforeMount(() => {
 <template>
     <Head title="Edit Picks"></Head>
         <div class="mx-auto pb-4 pt-3 sm:px-6 lg:px-8 max-w-7xl">
-            <div class="pb-1 flex flex-col md:flex-row justify-between items-end border-b border-gray-400">
+            <div class="pb-1 flex flex-col items-center justify-between md:flex-row md:items-end border-b border-gray-400">
                 <h2 class="text-xl">{{ league.name }}</h2>
                 <div id="teamsOnBye" class="d-flex justify-content-center align-items-base flex-wrap">
                     <h5 class="mb-2 md:mb-0">Byes: <span class="teams-on-bye">{{ displayByes }}</span></h5>
                 </div>
                 <div>
-                    <select id="weeks" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                        @change="changeWeek()" aria-label="select weeks"
-                        v-model="selectedWeek"
-                        >
-                        <option v-for="(week, index) in allWeeks" :key="index" :value="index + 1">Week {{ week }}</option>
-                    </select>
+					<Select items={allWeeks} id="weeks" v-model="selectedWeek" @update:model-value="changeWeek()">
+						<SelectTrigger class="w-full" :tabindex="1">
+							<SelectValue :placeholder="'Week ' + currentWeek"/>
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectLabel>Weeks</SelectLabel>
+								<SelectItem v-for="week in allWeeks" :key="week" :value="week">
+									Week {{ week }}
+								</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
                 </div>
             </div>
             <form method="POST" @submit.prevent="submitPicks">
-                <p class="mb-0 text-red-500 text-center" v-if="countPicks && league.league_type_id !== 2"><i
-                        class="fa fa-exclamation-circle"></i> {{ errorMessage }} Week {{ currWeek }}!
-                </p>
-                <div class="mb-3 py-2 grid grid-cols-4 justify-items-center items-center content-evenly border-b border-gray-400">
-                    <game-container v-for="(game, index) in thisWeek" :key="game.global_game_id" :league="league" :timezone="user.timezone" :game="game" :selected-team="getSelectedTeam(game)"></game-container>
-                    <div v-if="league.league_type_id !== 2" id="tiebreak-wrap" class="col-span-4 text-center flex flex-col">
-                        <label for="tiebreaker">Please enter total points for {{ lastGameOfWeek.away_team }}/{{
-                            lastGameOfWeek.home_team }}</label>
-                        <input type="text" id="tiebreaker" class="form-control" v-model="tiebreaker">
+                <div class="mb-3 grid grid-cols-1 auto-rows-[minmax(100px,auto)] md:grid-cols-2 xl:grid-cols-4 gap-3 border-b border-gray-400">
+                    <game-container v-for="(game, index) in thisWeek" :key="game.global_game_id" :league="league" :timezone="userTimezone" :game="game" :selected-team="getSelectedTeam(game)"></game-container>
+                    <div v-if="league.league_type_id !== 2" id="tiebreak-wrap" class="col-span-full">
+                        <div class="flex flex-col justify-center items-center">
+                            <label for="tiebreaker">Please enter total points for {{ lastGameOfWeek.away_team }}/{{ lastGameOfWeek.home_team }}</label>
+                            <input type="number" id="tiebreaker" min="0" max="120" class="mb-2 px-2 py-1 bg-slate-100 dark:bg-white rounded dark:text-slate-800" v-model="tiebreaker">
+                            <p class="mb-0 text-red-500 text-center flex justify-center items-center" v-if="countPicks && league.league_type_id !== 2"><CircleAlert class="me-1 w-4 h-4"/>Some games not picked for Week {{ selectedWeek }}!
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <input type="hidden" :value="league.id">
                 <input type="hidden" :value="thisWeek">
                 <div class="mb-5 text-center">
-                    <p class="text-red-500" v-if="countPicks"><i class="fa fa-exclamation-circle"></i> {{ errorMessage }} Week {{ currWeek }}!</p>
                     <button v-if="!selectedTeamsStore.areGamesDisabled" type="submit" class="mt-3 px-2.5 py-1.5 rounded-md bg-blue-500 border border-blue-500 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Save Picks</button>
                     <button v-if="league.league_type_id === 2" type="button" class="ms-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-red-400 text-sm font-semibold text-red-400 shadow-sm hover:bg-red-500 hover:text-white hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" @click.prevent="resetSurvivorPick">Reset Form</button>
                 </div>
