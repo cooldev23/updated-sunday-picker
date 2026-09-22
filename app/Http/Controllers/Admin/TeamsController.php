@@ -27,6 +27,8 @@ class TeamsController extends Controller
             $team->fullname = $teamObj->FullName;
             $team->bye_week = $teamObj->ByeWeek;
             $team->global_team_id = $teamObj->GlobalTeamID;
+            $team->logo_url = $teamObj->WikipediaLogoUrl;
+            $team->word_mark_url = $teamObj->WikipediaWordMarkUrl;
             $team->primary_color = $teamObj->PrimaryColor;
             $team->secondary_color = $teamObj->SecondaryColor;
             $team->tertiary_color = $teamObj->TertiaryColor;
