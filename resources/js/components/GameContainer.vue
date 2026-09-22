@@ -20,12 +20,10 @@ const props = defineProps({
 // data
 const away = ref({
     team: props.game.away_team,
-    image: getImageUrl(props.game.away_team + '.svg'),
     isPicked: false
 });
 const home = ref({
     team: props.game.home_team,
-    image: getImageUrl(props.game.home_team + '.svg'),
     isPicked: false
 });
 const isModalVisible = ref(false),
@@ -131,7 +129,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div class="m-2 p-2 game w-64 text-lg rounded shadow-sm border border-gray-400 bg-white" :class="{ 'border-red-500': hasWeightError, 'border border-gray-100 shadow-none': disabledForSurvivor }" :reset-form="resetForm">
+    <div class="m-2 p-2 game w-64 text-lg rounded shadow-sm border border-gray-400 bg-slate-400" :class="{ 'border-red-500': hasWeightError, 'border border-gray-100 shadow-none': disabledForSurvivor }" :reset-form="resetForm">
         <p class="game-date text-center mb-2 text-md"><small>{{ gameTime }}</small></p>
         <div class="mb-3 border border-gray-300 rounded-sm shadow-sm" :class="{ 'shadow-none bg-gray-300': disabledForSurvivor }">
             <TeamRadioButton
@@ -163,7 +161,7 @@ onBeforeMount(() => {
             </div>
         </div>
         <div class="grid gap-2">
-            <button type="button" class="px-2.5 py-1.5 rounded-md bg-gray-50 border border-blue-400 text-sm font-semibold text-blue-400 shadow-sm hover:bg-blue-500 hover:text-white hover:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" @click="showModal">Game Details</button>
+            <button type="button" class="px-2.5 py-1.5 rounded-md bg-gray-50 border border-blue-400 text-sm font-semibold text-blue-400 shadow-sm hover:bg-blue-500 hover:text-white hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" @click="showModal">Game Details</button>
         </div>
         <!-- <detailsModal :game="game" v-show="isModalVisible" @close="closeModal"></detailsModal> -->
     </div>
