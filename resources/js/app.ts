@@ -7,35 +7,25 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { createPinia } from 'pinia';
 
+const pinia = createPinia();
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => {
-        const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
-        const page = pages[`./Pages/${name}.vue`].default;
-        
-        // Apply your dynamic layouts
-        if (name === 'Welcome') {
-            page.layout = null;
-        } else if (name.startsWith('auth/')) {
-            page.layout = AuthLayout;
-        } else if (name.startsWith('settings/')) {
-            page.layout = [AppLayout, SettingsLayout];
-        } else {
-            page.layout = page.layout || AppLayout;
+    layout: (name) => {
+        switch (true) {
+            case name === 'Welcome':
+                return null;
+            case name.startsWith('auth/'):
+                return AuthLayout;
+            case name.startsWith('settings/'):
+                return [AppLayout, SettingsLayout];
+            default:
+                return AppLayout;
         }
-        
-        return page;
     },
-    setup({ el, App, props, plugin }) {
-        console.log(el);
-        const pinia = createPinia();
-
-        const app = createApp({ render: () => h(App, props) })
-            app.use(plugin);
-            app.use(pinia);
-            app.mount(el);
+    withApp(app) {
+        app.use(pinia)
     },
     progress: {
         color: '#4B5563',
