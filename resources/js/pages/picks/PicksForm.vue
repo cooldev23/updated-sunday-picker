@@ -1,6 +1,5 @@
 <script setup>
 import GameContainer from './GameContainer.vue';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import { useSelectedTeamsStore } from '@/Stores/SelectedTeamsStore.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed, onBeforeMount, reactive } from 'vue';
@@ -100,7 +99,6 @@ onBeforeMount(() => {
 
 <template>
     <Head title="Edit Picks"></Head>
-    <AuthLayout>
         <div class="mx-auto pb-4 pt-3 sm:px-6 lg:px-8 max-w-7xl">
             <div class="pb-1 flex flex-col md:flex-row justify-between items-end border-b border-gray-400">
                 <h2 class="text-xl">{{ league.name }}</h2>
@@ -132,11 +130,10 @@ onBeforeMount(() => {
                 <input type="hidden" :value="thisWeek">
                 <div class="mb-5 text-center">
                     <p class="text-red-500" v-if="countPicks"><i class="fa fa-exclamation-circle"></i> {{ errorMessage }} Week {{ currWeek }}!</p>
-                    <button v-if="!selectedTeamsStore.areGamesDisabled" type="submit" class="mt-3 px-2.5 py-1.5 rounded-md bg-blue-500 border border-blue-500 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 hover:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Save Picks</button>
-                    <button v-if="league.league_type_id === 2" type="button" class="ms-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-red-400 text-sm font-semibold text-red-400 shadow-sm hover:bg-red-500 hover:text-white hover:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" @click.prevent="resetSurvivorPick">Reset Form</button>
+                    <button v-if="!selectedTeamsStore.areGamesDisabled" type="submit" class="mt-3 px-2.5 py-1.5 rounded-md bg-blue-500 border border-blue-500 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Save Picks</button>
+                    <button v-if="league.league_type_id === 2" type="button" class="ms-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-red-400 text-sm font-semibold text-red-400 shadow-sm hover:bg-red-500 hover:text-white hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" @click.prevent="resetSurvivorPick">Reset Form</button>
                 </div>
             </form>
         </div>
-    </AuthLayout>
 </template>
 

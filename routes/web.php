@@ -37,9 +37,9 @@ Route::prefix('otp')->name('otp.')->group(function() {
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::prefix('user')->name('user.')->group(function() {
+    Route::prefix('week')->name('week.')->group(function() {
         Route::get('/{user}/league/{league}/{week?}', [WeekController::class, 'edit'])->name('edit.picks');
-        Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.changeWeek');
+        // Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('changeWeek');
     });
 
     Route::prefix('picks')->name('picks.')->group(function() {

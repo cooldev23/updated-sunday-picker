@@ -33,7 +33,7 @@ class UserPickController extends Controller
                 'message' => 'Picks updated successfully',
             ]);
             
-            return to_route('edit.picks', [
+            return to_route('picks.update', [
                 'user' => $user,
                 'league' => $league
             ]);
@@ -46,7 +46,7 @@ class UserPickController extends Controller
             'message' => 'Picks saved successfully',
         ]);
 
-        return to_route('edit.picks', [
+        return to_route('picks.update', [
             'user' => $user,
             'league' => $league
         ]);

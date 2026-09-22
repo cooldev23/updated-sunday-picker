@@ -26,7 +26,7 @@ class WeekController extends Controller
         //     return redirect()->route('unauthorized');
         // }
 
-        $currentWeek = $week ? $week : intval(CurrentWeek::value('current_nfl_week')); 
+        $currentWeek = $week ? $week : intval(app('currentWeek')); 
         $user = User::with(['leagues', 'picks'])->find($user->id);
         $userPicks = $user->picks()
                         ->where([['league_id_FK', $league->id],['nfl_week', $currentWeek]])
@@ -36,9 +36,9 @@ class WeekController extends Controller
 
         $byes = Schedule::where('nfl_week', $currentWeek)->byes()->pluck('home_team')->toArray();
 
-        $lastGameOfWeek = Schedule::lastGameOfWeek();
+        $lastGameOfWeek = Schedule::lastGameOfWeek($currentWeek);
 
-        return inertia('Picks/PicksForm', [
+        return inertia('picks/PicksForm', [
             'thisWeek' => $thisWeek,
             'byes' => $byes,
             'currentWeek' => $currentWeek, 
