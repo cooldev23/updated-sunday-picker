@@ -7,6 +7,7 @@ use App\Models\Pick;
 use App\Models\Schedule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,8 +29,19 @@ class WeekController extends Controller
      */
     public function create(League $league, int $week): Response
     {
+        $user = auth()->user();
         $byes = Schedule::where('nfl_week', $week)->byes()->pluck('home_team')->toArray();
         $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+        $otherWeeksWithPicks = [];
+
+        $weeksWithPicks = $user->picks()->select(DB::raw('DISTINCT nfl_week'))->get('nfl_week');
+        
+        foreach ($weeksWithPicks as $weekWithPick) {
+            if ($weekWithPick->nfl_week === $week) {
+                continue;
+            }
+            $otherWeeksWithPicks[] = $weekWithPick->nfl_week;
+        }
 
         $thisWeek = Schedule::with([
             'awayTeam' => function ($query) {
@@ -44,6 +56,7 @@ class WeekController extends Controller
             'thisWeek' => $thisWeek,
             'byes' => $byes,
             'currentWeek' => $week,
+            'otherWeeksWithPicks' => $otherWeeksWithPicks,
             'league' => $league,
             'lastGameOfWeek' => $lastGameOfWeek,
             'isEdit' => false
@@ -86,8 +99,18 @@ class WeekController extends Controller
         $user = auth()->user();
         $byes = Schedule::where('nfl_week', $week)->byes()->pluck('home_team')->toArray();
         $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+        $otherWeeksWithPicks = [];
 
-        $userPicks = $user->picks()
+        $weeksWithPicks = $user->picks()->select(DB::raw('DISTINCT nfl_week'))->get('nfl_week');
+        
+        foreach ($weeksWithPicks as $weekWithPick) {
+            if ($weekWithPick->nfl_week === $week) {
+                continue;
+            }
+            $otherWeeksWithPicks[] = $weekWithPick->nfl_week;
+        }
+
+        $thisWeeksPicks = $user->picks()
             ->where([['league_id_FK', $league->id], ['nfl_week', $week]])
             ->get(['game_id as gameId', 'winner as team', 'weighted_order as weight', 'tiebreaker']);
 
@@ -104,7 +127,8 @@ class WeekController extends Controller
             'thisWeek' => $thisWeek,
             'byes' => $byes,
             'currentWeek' => $week,
-            'userPicks' => $userPicks,
+            'userPicks' => $thisWeeksPicks,
+            'otherWeeksWithPicks' => $otherWeeksWithPicks,
             'league' => $league,
             'lastGameOfWeek' => $lastGameOfWeek,
             'isEdit' => true
@@ -116,14 +140,20 @@ class WeekController extends Controller
         $user = auth()->user();
 
         if ($league->league_type_id === 2) {
-            foreach ($request->data as $game) {
+            if ($request->data) {
+                Pick::updateOrCreate(
+                    ['nfl_week' => $week, 'league_id_FK' => $league->id],
+                    [
+                        'game_id' => $request->data[0]['gameId'],
+                        'winner' => $request->data[0]['team'],
+                        'weighted_order' => $request->data[0]['weight']
+                    ]
+                );
+            } else {
                 $survivorPick = $user->picks()->where([['nfl_week', $week], ['league_id_fk', $league->id]])->first();
-                $survivorPick->update([
-                    'game_id' => $game['gameId'],
-                    'winner' => $game['team'],
-                    'nfl_week' => $week,
-                    'weighted_order' => $game['weight'] ?? null
-                ]);
+                if ($survivorPick) {
+                    $survivorPick->delete();
+                }
             }
         }
 
