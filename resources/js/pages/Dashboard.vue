@@ -52,7 +52,7 @@ const page = usePage();
             <div class="mb-3 flex justify-around flex-wrap">
               <span v-for="pick in league.picks" :key="pick.game_id"
                 class="mx-2 mb-1 shadow-sm inline-flex justify-center items-center rounded-full bg-gray-50 px-2 py-1 text-lg w-16 font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{
-                pick.winner }}</span>
+                  pick.winner }}</span>
             </div>
           </CardContent>
           <CardFooter v-if="!league.picks.length">
