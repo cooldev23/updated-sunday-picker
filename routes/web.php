@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\TeamsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\OtpController;
-use App\Http\Controllers\UserPickController;
 use App\Http\Controllers\WeekController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
@@ -37,13 +36,11 @@ Route::prefix('otp')->name('otp.')->group(function() {
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::prefix('user')->name('user.')->group(function() {
-        Route::get('/{user}/league/{league}/{week?}', [WeekController::class, 'edit'])->name('edit.picks');
-        Route::get('/{user}/league/{league}/change-week', [WeekController::class, 'changeWeek'])->name('edit.changeWeek');
-    });
-
     Route::prefix('picks')->name('picks.')->group(function() {
-        Route::patch('/{user}/{league}', [UserPickController::class, 'setPicks'])->name('update');
+        Route::get('/{league}/create/week/{week}', [WeekController::class, 'create'])->name('create');
+        Route::post('/{league}/create/week/{week}', [WeekController::class, 'store'])->name('store');
+        Route::get('/{league}/edit/week/{week}', [WeekController::class, 'edit'])->name('edit');
+        Route::patch('/{league}/edit/week/{week}', [WeekController::class, 'update'])->name('update');
     });
 
     Route::prefix('league')->name('league.')->group(function() {

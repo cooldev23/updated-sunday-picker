@@ -45,6 +45,8 @@ export default defineConfig({
                 '**/.cursor/**',
                 '**/.junie/**',
                 '**/vendor/**',
+                '**/app/**',
+                '**/*.php'
             ],
         },
     },

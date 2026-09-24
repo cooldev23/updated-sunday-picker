@@ -12,12 +12,15 @@ class DashboardController extends Controller
             // return some other view that says season hasn't started yet
             return inertia('BetweenSeasons');
         }
-        
+
         $user = auth()->user();
         $currentWeek = app('currentWeek');
-        $user->load(['leagues.picks' => function(Builder $query) use ($currentWeek) {
-            $query->where('nfl_week', $currentWeek);
-        }, 'leagues.users']);
+        $user->load([
+            'leagues.picks' => function (Builder $query) use ($currentWeek) {
+                $query->where('nfl_week', $currentWeek);
+            },
+            'leagues.users'
+        ]);
         return inertia('Dashboard', [
             'leagues' => $user->leagues,
             'user' => $user,

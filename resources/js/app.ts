@@ -1,13 +1,13 @@
 import { createInertiaApp } from '@inertiajs/vue3';
-import { createApp, h } from 'vue'
+import { createApp, h } from 'vue';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
-import { ZiggyVue } from 'ziggy-js';
-import { route } from 'ziggy-js';
+import { createPinia } from 'pinia';
 
+const pinia = createPinia();
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 void createInertiaApp({
@@ -23,6 +23,9 @@ void createInertiaApp({
             default:
                 return AppLayout;
         }
+    },
+    withApp(app) {
+        app.use(pinia)
     },
     progress: {
         color: '#4B5563',

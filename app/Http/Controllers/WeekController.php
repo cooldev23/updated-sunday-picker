@@ -2,82 +2,184 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Week;
 use App\Models\League;
+use App\Models\Pick;
 use App\Models\Schedule;
-use Illuminate\View\View;
-use App\Models\CurrentWeek;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class WeekController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        // need this here for wayfinder
+    }
+
+    /**
+     * Show the form for creating the specified resource
+     * 
+     * @param  League $league
+     * @return Response
+     */
+    public function create(League $league, int $week): Response
+    {
+        $user = auth()->user();
+        $byes = Schedule::where('nfl_week', $week)->byes()->pluck('home_team')->toArray();
+        $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+        $otherWeeksWithPicks = [];
+
+        $weeksWithPicks = $user->picks()->select(DB::raw('DISTINCT nfl_week'))->get('nfl_week');
+        
+        foreach ($weeksWithPicks as $weekWithPick) {
+            if ($weekWithPick->nfl_week === $week) {
+                continue;
+            }
+            $otherWeeksWithPicks[] = $weekWithPick->nfl_week;
+        }
+
+        $thisWeek = Schedule::with([
+            'awayTeam' => function ($query) {
+                $query->select('global_team_id', 'team_key', 'logo_url', 'word_mark_url');
+            },
+            'homeTeam' => function ($query) {
+                $query->select('global_team_id', 'team_key', 'logo_url', 'word_mark_url');
+            },
+        ])->where('nfl_week', $week)->noByes()->orderBy('game_time')->get();
+
+        return inertia('picks/PicksForm', [
+            'thisWeek' => $thisWeek,
+            'byes' => $byes,
+            'currentWeek' => $week,
+            'otherWeeksWithPicks' => $otherWeeksWithPicks,
+            'league' => $league,
+            'lastGameOfWeek' => $lastGameOfWeek,
+            'isEdit' => false
+        ]);
+    }
+
+    public function store(Request $request, League $league, int $week): RedirectResponse
+    {
+        $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+        foreach ($request->data as $game) {
+            $pick = Pick::create([
+                'user_id_FK' => auth()->id(),
+                'league_id_FK' => $league->id,
+                'game_id' => $game['gameId'],
+                'nfl_week' => $week,
+                'winner' => $game['team'],
+                'weighted_order' => $game['weight'] ?? null,
+            ]);
+            if ($pick->game_id === $lastGameOfWeek->global_game_id) {
+                $pick->tiebreaker = intval($request->tiebreaker);
+                $pick->save();
+            }
+        }
+
+        Inertia::flash('success', 'Picks successfully saved!');
+        return to_route('dashboard');
+    }
+
+    /**
      * Show the form for editing the specified resource
      * 
-     * @param  User $user
      * @param  League $league
-     * @return \Inertia\Response
+     * @return Response
      */
-    public function edit(User $user, League $league, ?int $week = null)
+    public function edit(League $league, int $week): Response
     {
         // if ($user->cannot('view-other-users')) {
         //     return redirect()->route('unauthorized');
         // }
+        $user = auth()->user();
+        $byes = Schedule::where('nfl_week', $week)->byes()->pluck('home_team')->toArray();
+        $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+        $otherWeeksWithPicks = [];
 
-        $currentWeek = $week ? $week : intval(CurrentWeek::value('current_nfl_week')); 
-        $user = User::with(['leagues', 'picks'])->find($user->id);
-        $userPicks = $user->picks()
-                        ->where([['league_id_FK', $league->id],['nfl_week', $currentWeek]])
-                        ->get(['game_id as gameId', 'winner as team', 'weighted_order as weight', 'tiebreaker']);
+        $weeksWithPicks = $user->picks()->select(DB::raw('DISTINCT nfl_week'))->get('nfl_week');
+        
+        foreach ($weeksWithPicks as $weekWithPick) {
+            if ($weekWithPick->nfl_week === $week) {
+                continue;
+            }
+            $otherWeeksWithPicks[] = $weekWithPick->nfl_week;
+        }
 
-        $thisWeek = Schedule::where('nfl_week', $currentWeek)->noByes()->orderBy('game_time')->get();
+        $thisWeeksPicks = $user->picks()
+            ->where([['league_id_FK', $league->id], ['nfl_week', $week]])
+            ->get(['game_id as gameId', 'winner as team', 'weighted_order as weight', 'tiebreaker']);
 
-        $byes = Schedule::where('nfl_week', $currentWeek)->byes()->pluck('home_team')->toArray();
+        $thisWeek = Schedule::with([
+            'awayTeam' => function ($query) {
+                $query->select('global_team_id', 'team_key', 'logo_url', 'word_mark_url');
+            },
+            'homeTeam' => function ($query) {
+                $query->select('global_team_id', 'team_key', 'logo_url', 'word_mark_url');
+            },
+        ])->where('nfl_week', $week)->noByes()->orderBy('game_time')->get();
 
-        $lastGameOfWeek = Schedule::lastGameOfWeek();
-
-        return inertia('Picks/PicksForm', [
+        return inertia('picks/PicksForm', [
             'thisWeek' => $thisWeek,
             'byes' => $byes,
-            'currentWeek' => $currentWeek, 
-            'user' => $user,
-            'userPicks' => $userPicks,
+            'currentWeek' => $week,
+            'userPicks' => $thisWeeksPicks,
+            'otherWeeksWithPicks' => $otherWeeksWithPicks,
             'league' => $league,
             'lastGameOfWeek' => $lastGameOfWeek,
-            'timezone' => $user->timezone
+            'isEdit' => true
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $weekNumber
-     * @return \Illuminate\View\View|\Illuminate\Http\Response
-     */
-    public function changeWeek(Request $request, User $user, League $league): View|JsonResponse
-    {   
-        // if ($user->cannot('view-other-users')) {
-        //     return redirect()->route('unauthorized');
-        // }
+    public function update(Request $request, League $league, int $week): RedirectResponse
+    {
+        $user = auth()->user();
 
-        $weekNumber = $request->weekSelected;
+        if ($league->league_type_id === 2) {
+            if ($request->data) {
+                Pick::updateOrCreate(
+                    ['nfl_week' => $week, 'league_id_FK' => $league->id],
+                    [
+                        'game_id' => $request->data[0]['gameId'],
+                        'winner' => $request->data[0]['team'],
+                        'weighted_order' => $request->data[0]['weight']
+                    ]
+                );
+            } else {
+                $survivorPick = $user->picks()->where([['nfl_week', $week], ['league_id_fk', $league->id]])->first();
+                if ($survivorPick) {
+                    $survivorPick->delete();
+                }
+            }
+        }
 
-        // if (request()->wantsJson() || request()->ajax()) {
-        return Week::formatForJson($weekNumber, $user, $league->id);
-        // }
+        if (in_array($league->league_type_id, [1, 3])) {
+            foreach ($request->data as $game) {
+                foreach ($user->picks()->where([['nfl_week', $week], ['league_id_fk', $league->id]])->get() as $pick) {
+                    $pick->updateOrCreate(
+                        ['game_id' => $game['gameId'], 'league_id_FK' => $league->id, 'user_id_FK' => $user->id],
+                        [
+                            'winner' => $game['team'],
+                            'nfl_week' => $week,
+                            'weighted_order' => $game['weight'] ?? null
+                        ]
+                    );
+                }
+            }
+            $lastGameOfWeek = Schedule::lastGameOfWeek($week);
+            $tiebreakerGame = $user->picks()->where('game_id', $lastGameOfWeek->global_game_id)->first();
+            if ($tiebreakerGame) {
+                $tiebreakerGame->tiebreaker = $request->tiebreaker;
+                $tiebreakerGame->save();
+            }
+        }
 
-        // $userPicks = [];
-        // $currentWeek = $this->currWeek;
-        // $user->load('leagues');
+        Inertia::flash('success', 'Picks saved successfully!');
 
-        // $thisWeek = Schedule::where('nfl_week', $currentWeek)->noByes()->get();
-
-        // $byes = Schedule::where('nfl_week', $currentWeek)->byes()->pluck('home_team')->toArray();
-
-        // $lastGameOfWeek = Schedule::lastGameOfWeek();
-
-        // return view('week.show', compact('thisWeek', 'byes', 'currentWeek', 'user', 'userPicks', 'league', 'lastGameOfWeek'));
+        return to_route('dashboard');
     }
 }

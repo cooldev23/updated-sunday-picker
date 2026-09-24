@@ -45,6 +45,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class League extends Model
 {
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array

@@ -68,6 +68,14 @@ class User extends Authenticatable implements PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles;
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'display_name';
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
