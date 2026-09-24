@@ -48,8 +48,8 @@ const page = usePage();
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Week {{ page.props.currentWeek }} {{ league.picks.length ? 'Picks' : '' }}</p>
-            <div class="mb-3 flex justify-around flex-wrap">
+            <p class="mb-2">Week {{ page.props.currentWeek }} {{ league.picks.length ? 'Picks' : '' }}</p>
+            <div class="mb-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
               <span v-for="pick in league.picks" :key="pick.game_id"
                 class="mx-2 mb-1 shadow-sm inline-flex justify-center items-center rounded-full bg-gray-50 px-2 py-1 text-lg w-16 font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{
                   pick.winner }}</span>
