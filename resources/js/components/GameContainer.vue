@@ -12,6 +12,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog"
 import { TriangleAlert } from '@lucide/vue';
+import { usePage } from '@inertiajs/vue3';
 
 // stores
 const selectedTeamsStore = useSelectedTeamsStore();
@@ -23,6 +24,8 @@ const props = defineProps({
 	league: Object,
 	userTimezone: String
 });
+
+const page = usePage();
 
 // data
 const away = ref({
@@ -38,7 +41,7 @@ const isWeightSelected = ref(Boolean(props.selectedTeam.weight)),
 
 // computed properties
 const gameTime = computed(() => {
-	return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour12: true, hour: 'numeric', minute: '2-digit', timeZone: props.userTimezone }).format(new Date(props.game.game_time));
+	return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour12: true, hour: 'numeric', minute: '2-digit', timeZone: page.props.timezone }).format(new Date(props.game.game_time));
 });
 
 const disabledForSurvivor = computed(() => {
