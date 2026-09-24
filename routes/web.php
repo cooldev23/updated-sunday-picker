@@ -43,10 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function() {
         Route::patch('/{league}/edit/week/{week}', [WeekController::class, 'update'])->name('update');
     });
 
-    // Route::prefix('picks')->name('picks.')->group(function() {
-    //     Route::patch('/{user}/{league}', [UserPickController::class, 'setPicks'])->name('update');
-    // });
-
     Route::prefix('league')->name('league.')->group(function() {
         Route::get('/create', [LeagueController::class, 'create'])->name('create');
         Route::post('/create', [LeagueController::class, 'store'])->name('store');
