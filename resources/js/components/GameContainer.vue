@@ -1,9 +1,7 @@
 <script setup>
-// import detailsModal from './GameDetailsModal.vue';
 import { useSelectedTeamsStore } from '@/stores/SelectedTeamsStore.vue';
 import TeamRadioButton from '@/components/TeamRadioButton.vue';
 import GameWeightSelect from '@/components/GameWeightSelect.vue';
-import { ExclamationTriangleIcon } from '@heroicons/vue/24/solid';
 import { ref, computed, onBeforeMount } from 'vue';
 import {
 	Dialog,
