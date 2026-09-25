@@ -91,15 +91,14 @@ class Sportsdata
     
     /**
      * Get the scores from the current week's games.
-     * @param int $season
      * 
      * @return array|string
      */
-    public function getScoresByWeek(int $season): array|string
+    public function getScoresByWeek(): array|string
     {
-        $currentWeek = $this->getCurrentWeek();
+        $season = $this->getCurrentSeason();
         try {
-            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . $currentWeek . $this->key);
+            $res = $this->client->request('GET', 'scores/json/ScoresByWeek/' . $season . '/' . app('currentWeek') . $this->key);
             
             return json_decode($res->getBody());
         } catch (\Exception $e) {

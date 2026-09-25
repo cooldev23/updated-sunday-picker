@@ -53,10 +53,9 @@ class Score extends Model
      * Insert weekly scores.
      * 
      * @param array $weekGames
-     * @param int $currentWeek
      * @return void
      */
-    public static function insertWeeklyScores(array $weekGames, int $currentWeek): void
+    public static function insertWeeklyScores(array $weekGames): void
     {
         // some code here to loop through and insert into Scores table
         foreach ($weekGames as $game) {
@@ -77,7 +76,7 @@ class Score extends Model
         
         $users = User::all();
         foreach ($users as $user) {
-            $user->setCorrectPicksAndPercentages($currentWeek);
+            $user->setCorrectPicksAndPercentages();
         }
     }
 

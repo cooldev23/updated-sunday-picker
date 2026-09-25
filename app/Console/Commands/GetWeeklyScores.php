@@ -3,9 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Score;
-use App\Schedule;
-use Carbon\Carbon;
-use App\Models\CurrentWeek;
 use App\Services\Sportsdata;
 use Illuminate\Console\Command;
 
@@ -42,10 +39,8 @@ class GetWeeklyScores extends Command
      */
     public function handle(Sportsdata $sportsdata)
     {
-        $season = $sportsdata->getCurrentSeason();
-        $cw = intval(CurrentWeek::value('current_nfl_week'));
-        $allScores = $sportsdata->getScoresByWeek($season);
-        Score::insertWeeklyScores($allScores, $cw);
+        $allScores = $sportsdata->getScoresByWeek();
+        Score::insertWeeklyScores($allScores);
         die();
     }
 }

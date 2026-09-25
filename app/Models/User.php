@@ -141,19 +141,21 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Summary of setCorrectPicksAndPercentages
-     * @param int $cw
      * @return void
      */
-    public function setCorrectPicksAndPercentages(int $cw): void
+    public function setCorrectPicksAndPercentages(): void
     {
         // TODO run through week 3
         // TODO add scopes
+        $cw = app('currentWeek');
         $weekWinners = Score::where('nfl_week', $cw)->get(['winner', 'game_id']);
         $formattedWinners = $this->formatWinners($weekWinners);
         $weekPicks = $this->picks()->where('nfl_week', $cw)->get();
         foreach($this->leagues as $league) {
+            dd($league->picks);
             foreach ($weekPicks as $pick) {
                 if ($league->league_type_id === 2) {
+                    dd($league);
                     if ($formattedWinners[$pick->game_id] !== $pick->winner) {
                         $this->leagues()->updateExistingPivot($league->id, ['survivor_eliminated' => 1]);
                     }

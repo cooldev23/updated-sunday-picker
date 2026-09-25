@@ -21,6 +21,7 @@ class DashboardController extends Controller
             },
             'leagues.users'
         ]);
+        // $user->setCorrectPicksAndPercentages();
         return inertia('Dashboard', [
             'leagues' => $user->leagues,
             'user' => $user,
