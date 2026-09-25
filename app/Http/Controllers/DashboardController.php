@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\LeagueInvited;
 use App\Models\Schedule;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
@@ -21,9 +22,12 @@ class DashboardController extends Controller
             },
             'leagues.users'
         ]);
+        $leagueInvites = LeagueInvited::with('league')->where('invited', 'like', '%' . $user->email . '%')->latest()->first();
+        $hasLeagueInvites = $leagueInvites ? true : false;
         return inertia('Dashboard', [
             'leagues' => $user->leagues,
             'user' => $user,
+            'hasLeagueInvites' => $hasLeagueInvites
         ]);
     }
 }

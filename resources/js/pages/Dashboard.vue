@@ -24,7 +24,8 @@ defineOptions({
 
 let props = defineProps({
   leagues: Array,
-  user: Object
+  user: Object,
+  hasLeagueInvites: Boolean
 });
 
 const page = usePage();
@@ -74,15 +75,19 @@ const page = usePage();
           <CardTitle>No Leagues</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p class="text-muted-foreground">
             <!-- TODO: replace this with year from current_week table -->
             Looks like you don't belong to any leagues yet! Let's fix that!
           </p>
+          <p v-if="hasLeagueInvites" class="text-muted-foreground">We found at least one invite to join an existing league, so you can join that league or create your own.</p>
         </CardContent>
         <CardFooter>
           <Link :href="create()"
             class="rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-md hover:bg-blue-500 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
             Create League</Link>
+          <Link :href="create()" v-if="hasLeagueInvites"
+            class="ms-2 rounded-md bg-blue-100 px-2.5 py-1.5 text-sm font-semibold text-blue-600 shadow-md hover:bg-blue-200 hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900">
+            View Invites</Link>
         </CardFooter>
       </Card>
     </div>
