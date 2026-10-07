@@ -36,6 +36,10 @@ Route::prefix('otp')->name('otp.')->group(function() {
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::prefix('notifications')->name('notifications.')->group(function() {
+        
+    });
+
     Route::prefix('picks')->name('picks.')->group(function() {
         Route::get('/{league}/create/week/{week}', [WeekController::class, 'create'])->name('create');
         Route::post('/{league}/create/week/{week}', [WeekController::class, 'store'])->name('store');
