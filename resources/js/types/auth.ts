@@ -1,6 +1,9 @@
 export type User = {
     id: number;
-    name: string;
+    fist_name: string;
+    last_name: string;
+    display_name: string;
+    fullName: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
@@ -12,6 +15,11 @@ export type User = {
 
 export type Auth = {
     user: User;
+    // Maps permission strings to a boolean, e.g., { edit_users: true }
+    can: Record<string, boolean>;
+    
+    // Maps role strings to their lowercase string value, e.g., { super_admin: 'super_admin' }
+    roles: Record<string, string>;
 };
 
 export type Passkey = {

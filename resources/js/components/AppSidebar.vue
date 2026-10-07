@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid, ShieldKeyhole } from '@lucide/vue';
+import { BookOpen, FolderGit2, LayoutGrid, Megaphone, ShieldKeyhole } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,12 +17,18 @@ import {
 import { dashboard } from '@/routes';
 import { adminDashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
+import { computed } from 'vue'
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Notifications',
+        href: dashboard(),
+        icon: Megaphone,
     },
     {
         title: 'Admin',
