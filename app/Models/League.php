@@ -110,6 +110,16 @@ class League extends Model
     {
         return $this->hasMany(Otp::class);
     }
+    
+    /**
+     * A league can have many invites sent.
+     *
+     * @return HasMany
+     */
+    public function invitesSent(): HasMany
+    {
+        return $this->hasMany(LeagueInvited::class);
+    }
 
     /**
      * Can show games or not depending on time.

@@ -34,8 +34,9 @@ class LeagueController extends Controller
     {
         $types = LeagueType::all();
 
-        return inertia('league/CreateLeague', [
-            'leagueTypes' => $types
+        return inertia('league/ManageLeague', [
+            'leagueTypes' => $types,
+            'isEdit' => false
         ]);
     }
 
