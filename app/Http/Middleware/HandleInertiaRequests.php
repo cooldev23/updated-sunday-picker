@@ -40,9 +40,25 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user()
-                ? $request->user()->only('id', 'display_name', 'email', 'timezone')
+                ? $request->user()->only('id', 'fullName', 'display_name', 'email', 'timezone')
                 : null,
+                'can' => $request->user()?->loadMissing('roles')
+                    ->roles->flatMap(function ($role) {
+                        return $role->permissions;
+                    })->map(function ($permission) {
+                        return [
+                            str_replace('-', '_', $permission->name) => auth()->user()->can($permission->name),
+                        ];
+                    })->collapse()->all(),
+                'roles' => $request->user()?->loadMissing('roles')
+                    ->roles->map(function ($role) {
+                        return [
+                            strtolower(str_replace(' ', '_', $role->name)) => strtolower(str_replace(' ', '_', $role->name)),
+                        ];
+                    })->collapse()->all(),
             ],
+            'unread_notifications_count' => $request->user ? $request->user()->unreadNotifications()->count() : 0,
+            'notifications' => $request->user ? $request->user()->unreadNotifications : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentWeek' => app('currentWeek'),
             'flash' => [
