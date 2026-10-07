@@ -100,6 +100,16 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Return users fullname.
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => "{$attributes['first_name']} {$attributes['last_name']}",
+        );
+    }
+
+    /**
      * A user can belong to many leagues.
      *
      * @return BelongsToMany
